@@ -19,7 +19,7 @@
             "args": [
                 "get",
                 "project",
-                "7",
+                "/vehicle/node/description",
                 "id",
                 "name"
             ]

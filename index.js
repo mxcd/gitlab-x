@@ -12,9 +12,8 @@ gitlab-x ci-lint => /ci/lint
 import pkg from 'argparse';
 const {ArgumentParser} = pkg;
 import { apiTest, getApiDriver, filterFields } from './util.js'
-import { readFileSync } from 'fs'
 
-const version = JSON.parse(readFileSync('./package.json')).version;
+const version = "0.1.9";
  
 const parser = new ArgumentParser({
   description: 'gitlab-x: Gitlab Executor API Interface'
@@ -64,6 +63,9 @@ async function doAction(args) {
   const action = args.action;
   if(args.verbose) console.log(`Action is '${action}'`);
   switch(action) {
+    case "version":
+      await doVersion(args);
+      break;
     case "get":
       await doGetAction(args);
       break;
@@ -91,9 +93,15 @@ async function doGetAction(args) {
       break;
     default:
       throw new Error(`Error: object type '${objectType}' is not supported`)
-  }  
+  }
 }
 
+async function doVersion(args) {
+  const api = getApiDriver(args);
+  const version = await api.getVersion();
+  const result = filterFields(args, version, args.parameters);
+  console.dir(result);
+}
 
 async function getProject(args, objectIdentifier, fields) {
   const api = getApiDriver(args);

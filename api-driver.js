@@ -6,6 +6,14 @@ const API_PATH = `/api/v4`;
 export class GitlabApiDriver {
     constructor(baseUrl, accessToken) {
         this.BASE_URL = trimTailingSlash(baseUrl);
+        
+        if(this.BASE_URL.startsWith("http://")) {
+            this.BASE_URL = this.BASE_URL.replace("http://", "https://");
+        }
+        if(!this.BASE_URL.startsWith("https://")) {
+            this.BASE_URL = `https://${this.BASE_URL}`;
+        }
+
         this.API_URL = `${this.BASE_URL}${API_PATH}`
         this.AT = accessToken;
         this.config = { headers: { "PRIVATE-TOKEN": this.AT } }
@@ -16,7 +24,7 @@ export class GitlabApiDriver {
         const url = `${this.API_URL}/projects/${encodedPath}`;
         try {
             const res = await axios.get(url, this.config);
-            return res.data.id;
+            return res.data;
         }
         catch(e) {
             throw new GitlabApiError(`Error requesting project with path '${this.BASE_URL}/${trimSlashes(projectPath)}'\n\nOriginal Error:\n${e}`)
