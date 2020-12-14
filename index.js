@@ -13,7 +13,7 @@ import pkg from 'argparse';
 const {ArgumentParser} = pkg;
 import { apiTest, getApiDriver, filterFields } from './util.js'
 
-const version = "0.1.9";
+const version = "0.1.10";
  
 const parser = new ArgumentParser({
   description: 'gitlab-x: Gitlab Executor API Interface'
