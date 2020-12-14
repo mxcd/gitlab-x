@@ -1,0 +1,23 @@
+{
+  "name": "gitlab-x",
+  "version": "0.0.7",
+  "description": "GitLab Executor API Interface",
+  "repository": "https://github.com/mxcd/gitlab-api",
+  "main": "index.js",
+  "bin": {
+    "gtlb-api": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bin": "node index.js"
+  },
+  "type": "module",
+  "author": "Max Partenfelder",
+  "license": "ISC",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "axios": "^0.21.0",
+    "diff": "^5.0.0",
+    "fs": "0.0.1-security"
+  }
+}
