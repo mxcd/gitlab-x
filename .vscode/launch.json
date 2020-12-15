@@ -18,8 +18,9 @@
             },
             "args": [
                 "get",
-                "branches",
-                "7"
+                "raw",
+                "/vehicle/node/description",
+                "package.json"
             ]
         }
     ]

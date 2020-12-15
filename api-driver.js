@@ -4,7 +4,8 @@ import {trimSlashes, trimTailingSlash, trimLeadingSlash, resolveProjectIdentifie
 const API_PATH = `/api/v4`;
 
 export class GitlabApiDriver {
-    constructor(baseUrl, accessToken) {
+    constructor(baseUrl, accessToken, verbose) {
+        this.VERBOSE = verbose;
         this.BASE_URL = trimTailingSlash(baseUrl);
         
         if(this.BASE_URL.startsWith("http://")) {
@@ -36,6 +37,7 @@ export class GitlabApiDriver {
     async getProject(identifier) {
         const url = this.getProjectUrl(identifier);
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             return res.data;
         }
@@ -47,6 +49,7 @@ export class GitlabApiDriver {
     async getBranches(projectIdentifier) {
         const url = `${this.getProjectUrl(projectIdentifier)}/repository/branches`;
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             return res.data;
         }
@@ -58,6 +61,7 @@ export class GitlabApiDriver {
     async branchExists(projectId, branchName) {
         const url = `${this.API_URL}/projects/${projectId}/repository/branches/${branchName}`;
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             return res.status === 200;
         }
@@ -75,6 +79,7 @@ export class GitlabApiDriver {
         const encodedFilePath = encodeURIComponent(trimSlashes(filePath))
         const url = `${this.API_URL}/projects/${projectId}/repository/files/${encodedFilePath}?ref=${branchName}`
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             return res.status === 200;
         }
@@ -97,6 +102,7 @@ export class GitlabApiDriver {
             }
         }
         try {
+            if(this.VERBOSE) console.log(`POST > ${url}`);
             const res = await axios.post(url, commitObject, config);
             return res.status === 201;
         }
@@ -114,6 +120,7 @@ export class GitlabApiDriver {
             }
         }
         try {
+            if(this.VERBOSE) console.log(`PUT > ${url}`);
             const res = await axios.put(url, commitObject, config);
             return res.status === 201;
         }
@@ -122,28 +129,28 @@ export class GitlabApiDriver {
         }
     }
 
-    async getRawFile(projectId, branchName, filePath) {
+    async getRawFile(projectIdentifier, filePath, branchName) {
+        if(typeof branchName === 'undefined') {
+            branchName = (await this.getProject(projectIdentifier)).default_branch;
+        }
         const encodedFilePath = encodeURIComponent(trimSlashes(filePath))
-        const url = `${this.API_URL}/projects/${projectId}/repository/files/${encodedFilePath}/raw?ref=${branchName}`
+        const url = `${this.getProjectUrl(projectIdentifier)}/repository/files/${encodedFilePath}/raw?ref=${branchName}`
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             if(res.status === 200) {
                 return res.data;
             }
         }
         catch(e) {
-            if(typeof e.response !== 'undefined' && e.response.status === 404) {
-                return false;
-            }
-            else {
-                throw new GitlabApiError(`Error requesting raw file '${filePath}' from branch '${branchName}' for project ID '${projectId}'\n\nOriginal Error:\n${e}`)
-            }
+            throw new GitlabApiError(`Error requesting raw file '${filePath}' from branch '${branchName}' for project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
         }
     }
 
     async getVersion() {
         const url = `${this.API_URL}/version`;
         try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
             if(res.status === 200) {
                 return res.data;

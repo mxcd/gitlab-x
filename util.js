@@ -39,7 +39,7 @@ export async function apiTest(args) {
 }
 
 export function getApiDriver(args) {
-    return new GitlabApiDriver(args.url, args.access_token);
+    return new GitlabApiDriver(args.url, args.access_token, args.verbose);
 }
 
 export function filterFields(args, obj, fields) {

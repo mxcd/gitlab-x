@@ -26,7 +26,7 @@ parser.add_argument('-t', '--access-token');
 parser.add_argument('-u', '--url')
 parser.add_argument('--verbose', {action: 'store_true', help: 'increased console output'})
 parser.add_argument('--json', {action: 'store_true', help: 'always print result as json, even if it is a single value'})
-
+parser.add_argument('--ref', {metavar: 'ref', type: String, help: 'provide a git ref'})
 
 const args = parser.parse_args()
 
@@ -83,17 +83,26 @@ async function doGetAction(args) {
   }
   const objectType = parameters.shift();
   const objectIdentifier = parameters.shift();
-  // remaining parameters are object fields
-  const fields = parameters;
+  let fields;
 
   switch(objectType) {
     case "project":
+      fields = parameters;
       if(args.verbose) console.log(`Doing 'GET' > 'project' with identifier '${objectIdentifier}' and fields '${fields}'`);
       await getProject(args, objectIdentifier, fields);
       break;
     case "branches":
+      fields = parameters;
       if(args.verbose) console.log(`Doing 'GET' > 'branches' with identifier '${objectIdentifier}' and fields '${fields}'`);
       await getBranches(args, objectIdentifier, fields);
+      break;
+    case "raw":
+      if(parameters.length != 1) {
+        throw new Error(`Error: wrong number of parameters for 'get raw' action`)
+      }
+      const filePath = parameters.shift();
+      if(args.verbose) console.log(`Doing 'GET' > 'raw' with identifier project identifier '${objectIdentifier}' and file path '${fields}'`);
+      await getRaw(args, objectIdentifier, filePath);
       break;
     default:
       throw new Error(`Error: object type '${objectType}' is not supported`)
@@ -119,4 +128,10 @@ async function getBranches(args, objectIdentifier, fields) {
   const branches = await api.getBranches(objectIdentifier);
   const result = filterFields(args, branches, fields);
   console.dir(result);
+}
+
+async function getRaw(args, projectIdentifier, filePath) {
+  const api = getApiDriver(args);
+  const rawFile = await api.getRawFile(projectIdentifier, filePath, args.ref);
+  console.log(rawFile);
 }
