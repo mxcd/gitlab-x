@@ -62,3 +62,9 @@ $ npx gitlab-x get project /mxcd/test
 
 $ npx gitlab-x get project 23106572 name web_url
 { name: 'test', web_url: 'https://gitlab.com/mxcd/test' }
+```
+
+##### get branches
+`$ npx gitlab-x get branches <project_identifier> [fields...]`  
+
+##### get branch

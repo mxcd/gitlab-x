@@ -18,10 +18,8 @@
             },
             "args": [
                 "get",
-                "project",
-                "/vehicle/node/description",
-                "id",
-                "name"
+                "branches",
+                "7"
             ]
         }
     ]

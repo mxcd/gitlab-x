@@ -19,39 +19,39 @@ export class GitlabApiDriver {
         this.config = { headers: { "PRIVATE-TOKEN": this.AT } }
     }
 
-    async _getProjectByPath(projectPath) {
-        const encodedPath = encodeURIComponent(trimSlashes(projectPath))
-        const url = `${this.API_URL}/projects/${encodedPath}`;
-        try {
-            const res = await axios.get(url, this.config);
-            return res.data;
+    getProjectUrl(identifier) {
+        const resolvedIdentifier = resolveProjectIdentifier(this.BASE_URL, identifier);
+        if(typeof resolvedIdentifier.id !== 'undefined') {
+            return `${this.API_URL}/projects/${resolvedIdentifier.id}`;
         }
-        catch(e) {
-            throw new GitlabApiError(`Error requesting project with path '${this.BASE_URL}/${trimSlashes(projectPath)}'\n\nOriginal Error:\n${e}`)
+        else if(typeof resolvedIdentifier.path !== 'undefined') {
+            const encodedPath = encodeURIComponent(trimSlashes(resolvedIdentifier.path))
+            return `${this.API_URL}/projects/${encodedPath}`;
         }
-    }
-
-    async _getProjectById(projectId) {
-        const url = `${this.API_URL}/projects/${projectId}`;
-        try {
-            const res = await axios.get(url, this.config);
-            return res.data;
-        }
-        catch(e) {
-            throw new GitlabApiError(`Error requesting project with ID '${projectId}'\n\nOriginal Error:\n${e}`)
+        else {
+            throw new Error(`'${identifier}' is an invalid identifier for a project`);
         }
     }
 
     async getProject(identifier) {
-        const resolvedIdentifier = resolveProjectIdentifier(this.BASE_URL, identifier);
-        if(typeof resolvedIdentifier.id !== 'undefined') {
-            return await this._getProjectById(resolvedIdentifier.id);
+        const url = this.getProjectUrl(identifier);
+        try {
+            const res = await axios.get(url, this.config);
+            return res.data;
         }
-        else if(typeof resolvedIdentifier.path !== 'undefined') {
-            return await this._getProjectByPath(resolvedIdentifier.path);
+        catch(e) {
+            throw new GitlabApiError(`Error requesting project identified by '${identifier}'\n\nOriginal Error:\n${e}`)
         }
-        else {
-            throw new Error(`'${identifier}' is an invalid identifier for a project`);
+    }
+
+    async getBranches(projectIdentifier) {
+        const url = `${this.getProjectUrl(projectIdentifier)}/repository/branches`;
+        try {
+            const res = await axios.get(url, this.config);
+            return res.data;
+        }
+        catch(e) {
+            throw new GitlabApiError(`Error requesting branchs for project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
         }
     }
 

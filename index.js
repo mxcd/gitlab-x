@@ -91,6 +91,10 @@ async function doGetAction(args) {
       if(args.verbose) console.log(`Doing 'GET' > 'project' with identifier '${objectIdentifier}' and fields '${fields}'`);
       await getProject(args, objectIdentifier, fields);
       break;
+    case "branches":
+      if(args.verbose) console.log(`Doing 'GET' > 'branches' with identifier '${objectIdentifier}' and fields '${fields}'`);
+      await getBranches(args, objectIdentifier, fields);
+      break;
     default:
       throw new Error(`Error: object type '${objectType}' is not supported`)
   }
@@ -107,5 +111,12 @@ async function getProject(args, objectIdentifier, fields) {
   const api = getApiDriver(args);
   const project = await api.getProject(objectIdentifier);
   const result = filterFields(args, project, fields);
+  console.dir(result);
+}
+
+async function getBranches(args, objectIdentifier, fields) {
+  const api = getApiDriver(args);
+  const branches = await api.getBranches(objectIdentifier);
+  const result = filterFields(args, branches, fields);
   console.dir(result);
 }

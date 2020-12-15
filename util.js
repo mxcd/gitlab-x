@@ -43,7 +43,7 @@ export function getApiDriver(args) {
 }
 
 export function filterFields(args, obj, fields) {
-    if(typeof obj === 'object' && fields.length !== 0) {
+    const filterSingleObj = (args, obj, fields) => {
         if(fields.length === 1 && !args.json) {
             return obj[fields[0]]
         }
@@ -53,7 +53,24 @@ export function filterFields(args, obj, fields) {
                 result[field] = obj[field]
             }
             return result;
+        }
+    }
     
+    if(fields.length !== 0) {
+        if(typeof obj === 'object') {
+            if(Array.isArray(obj)) {
+                let result = [];
+                for(let listObj of obj) {
+                    result.push(filterSingleObj(args, listObj, fields))
+                }
+                return result;
+            }
+            else {
+                return filterSingleObj(args, obj, fields);
+            }
+        }
+        else {
+            return obj;
         }
     }
     else {
