@@ -7,7 +7,8 @@ publish_github:
     tags:
         - shell
     script:
-        - git remote set-url github https://${GITHUB_REPO_TOKEN}@github.com/mxcd/gitlab-x
+        - git remote rm github || true;
+        - git remote add github https://${GITHUB_REPO_TOKEN}@github.com/mxcd/gitlab-x
         - git push github master
     only:
         - master
