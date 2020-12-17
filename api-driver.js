@@ -75,9 +75,12 @@ export class GitlabApiDriver {
         }
     }
 
-    async fileExists(projectId, branchName, filePath) {
+    async fileExists(projectIdentifier, filePath, branchName) {
+        if(typeof branchName === 'undefined') {
+            branchName = (await this.getProject(projectIdentifier)).default_branch;
+        }
         const encodedFilePath = encodeURIComponent(trimSlashes(filePath))
-        const url = `${this.API_URL}/projects/${projectId}/repository/files/${encodedFilePath}?ref=${branchName}`
+        const url = `${this.getProjectUrl(projectIdentifier)}/repository/files/${encodedFilePath}?ref=${branchName}`
         try {
             if(this.VERBOSE) console.log(`GET > ${url}`);
             const res = await axios.get(url, this.config);
@@ -88,13 +91,13 @@ export class GitlabApiDriver {
                 return false;
             }
             else {
-                throw new GitlabApiError(`Error requesting file '${filePath}' from branch '${branchName}' for project ID '${projectId}'\n\nOriginal Error:\n${e}`)
+                throw new GitlabApiError(`Error requesting file '${filePath}' from branch '${branchName}' for project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
             }
         }
     }
 
-    async postCommit(projectId, commitObject) {
-        const url = `${this.API_URL}/projects/${projectId}/repository/commits`
+    async postCommit(projectIdentifier, commitObject) {
+        const url = `${this.getProjectUrl(projectIdentifier)}/repository/commits`
         const config = {
             headers: {
                 "PRIVATE-TOKEN": this.AT,
@@ -107,7 +110,7 @@ export class GitlabApiDriver {
             return res.status === 201;
         }
         catch(e) {
-            throw new GitlabApiError(`Error executing commit on project ID '${projectId}'\n\nOriginal Error:\n${e}`)
+            throw new GitlabApiError(`Error executing commit on project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
         }
     }
 
@@ -137,7 +140,14 @@ export class GitlabApiDriver {
         const url = `${this.getProjectUrl(projectIdentifier)}/repository/files/${encodedFilePath}/raw?ref=${branchName}`
         try {
             if(this.VERBOSE) console.log(`GET > ${url}`);
-            const res = await axios.get(url, this.config);
+            const res = await axios.request({
+                responseType: 'arraybuffer',
+                url: url,
+                method: "get",
+                headers: {
+                    "PRIVATE-TOKEN": this.AT
+                }
+            });
             if(res.status === 200) {
                 return res.data;
             }

@@ -75,3 +75,6 @@ $ npx gitlab-x get project 23106572 name web_url
 
 ##### get raw
 `$ npx gitlab-x get raw <project_identifier> <file_path> [--ref <branch>]`
+
+#### commit 
+`$ npx gitlab-x commit <local file> <project identifier> [<target file>] [--ref <branch>] [--force]`

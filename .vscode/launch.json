@@ -11,16 +11,17 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/index.js",
+            "program": "${workspaceFolder}/bin.js",
             "env": {
                 "GITLAB_URL": "https://git.fs-stuttgart.de",
                 "GITLAB_AT": "BRVsC4zxDQyjRnmpaawp"
             },
             "args": [
-                "get",
-                "raw",
-                "/vehicle/node/description",
-                "package.json"
+                "commit",
+                "img.jpg",
+                "/m.partenfelder/config-shipper-test",
+                "e8.jpg",
+                "--verbose"
             ]
         }
     ]

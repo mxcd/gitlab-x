@@ -1,11 +1,11 @@
 {
   "name": "gitlab-x",
-  "version": "0.1.10",
+  "version": "0.2.2",
   "description": "GitLab Executor API Interface",
   "repository": "https://github.com/mxcd/gitlab-api",
   "main": "index.js",
   "bin": {
-    "gitlab-x": "./index.js"
+    "gitlab-x": "./bin.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
