@@ -1,0 +1,13 @@
+stages:
+    - test
+    - publish
+
+publish_npm:
+    stage: publish
+    tags:
+        - shell
+    script:
+        - npm config set //registry.npmjs.org/:_authToken ${NPM_PUBLISH_TOKEN}
+        - npm publish
+    only:
+        - master
