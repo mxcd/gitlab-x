@@ -8,7 +8,7 @@ import {GitlabApiDriver} from './api-driver.js'
 import * as commitHelper from './commit-helper.js'
 
 // version (same as package.json due to npx problems)
-const version = "0.2.2";
+const version = "0.2.3";
  
 const parser = new ArgumentParser({
   description: 'gitlab-x: Gitlab Executor API Interface'

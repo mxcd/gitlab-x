@@ -52,7 +52,10 @@ export async function commitSingleFile(localFile, projectIdentifier, remoteFile,
     let identical = false;
     if (remoteFileExists && !FORCE) {
         let existingFileData = await api.getRawFile(projectIdentifier, remoteFile, targetBranch);
-        if(!ascii) {
+        if(ascii) {
+            existingFileData = existingFileData.toString("utf8");
+        }
+        else {
             existingFileData = existingFileData.toString("base64");
         }
         try {
@@ -96,11 +99,12 @@ export async function commitSingleFile(localFile, projectIdentifier, remoteFile,
         try {
             if(VERBOSE) console.dir(commitObject)
             await api.postCommit(projectIdentifier, commitObject);
+            console.log(`Committed '${remoteFile}'`);
         } catch (e) {
             console.log(`Error committing changes to project identified by '${projectIdentifier}' on branch '${targetBranch}'\nCommit object:\n${commitObject}\nOriginal Error:\n${e}`)
         }
     } else {
-        if(VERBOSE) console.log("Nothing to commit");
+        console.log("Nothing to commit");
     }
 }
 
