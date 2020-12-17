@@ -1,0 +1,13 @@
+stages:
+    - test
+    - publish
+
+publish_github:
+    stage: publish
+    tags:
+        - shell
+    script:
+        - git remote set-url github https://${GITHUB_REPO_TOKEN}@github.com/mxcd/gitlab-x
+        - git push github master
+    only:
+        - master
