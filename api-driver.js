@@ -1,12 +1,12 @@
-import axios from "axios";
-import {trimSlashes, trimTailingSlash, trimLeadingSlash, resolveProjectIdentifier} from "./util.js";
+const axios = require("axios");
+const util = require("./util.js");
 
 const API_PATH = `/api/v4`;
 
-export class GitlabApiDriver {
+class GitlabApiDriver {
     constructor(baseUrl, accessToken, verbose) {
         this.VERBOSE = verbose;
-        this.BASE_URL = trimTailingSlash(baseUrl);
+        this.BASE_URL = util.trimTailingSlash(baseUrl);
         
         if(this.BASE_URL.startsWith("http://")) {
             this.BASE_URL = this.BASE_URL.replace("http://", "https://");
@@ -21,12 +21,12 @@ export class GitlabApiDriver {
     }
 
     getProjectUrl(identifier) {
-        const resolvedIdentifier = resolveProjectIdentifier(this.BASE_URL, identifier);
+        const resolvedIdentifier = util.resolveProjectIdentifier(this.BASE_URL, identifier);
         if(typeof resolvedIdentifier.id !== 'undefined') {
             return `${this.API_URL}/projects/${resolvedIdentifier.id}`;
         }
         else if(typeof resolvedIdentifier.path !== 'undefined') {
-            const encodedPath = encodeURIComponent(trimSlashes(resolvedIdentifier.path))
+            const encodedPath = encodeURIComponent(util.trimSlashes(resolvedIdentifier.path))
             return `${this.API_URL}/projects/${encodedPath}`;
         }
         else {
@@ -79,7 +79,7 @@ export class GitlabApiDriver {
         if(typeof branchName === 'undefined') {
             branchName = (await this.getProject(projectIdentifier)).default_branch;
         }
-        const encodedFilePath = encodeURIComponent(trimSlashes(filePath))
+        const encodedFilePath = encodeURIComponent(util.trimSlashes(filePath))
         const url = `${this.getProjectUrl(projectIdentifier)}/repository/files/${encodedFilePath}?ref=${branchName}`
         try {
             if(this.VERBOSE) console.log(`GET > ${url}`);
@@ -136,7 +136,7 @@ export class GitlabApiDriver {
         if(typeof branchName === 'undefined') {
             branchName = (await this.getProject(projectIdentifier)).default_branch;
         }
-        const encodedFilePath = encodeURIComponent(trimSlashes(filePath))
+        const encodedFilePath = encodeURIComponent(util.trimSlashes(filePath))
         const url = `${this.getProjectUrl(projectIdentifier)}/repository/files/${encodedFilePath}/raw?ref=${branchName}`
         try {
             if(this.VERBOSE) console.log(`GET > ${url}`);
@@ -182,3 +182,6 @@ class GitlabApiError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
+
+module.exports.GitlabApiDriver = GitlabApiDriver
+module.exports.GitlabApiError = GitlabApiError

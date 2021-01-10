@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 // Imports
-import pkg from 'argparse';
-const {ArgumentParser} = pkg;
-import { apiTest, getApiDriver, filterFields } from './util.js'
-import {GitlabApiDriver} from './api-driver.js'
-import * as commitHelper from './commit-helper.js'
+const {ArgumentParser} = require("argparse");
+const { apiTest, getApiDriver, filterFields } = require('./util.js');
+const GitlabApiDriver = require('./api-driver.js').GitlabApiDriver
+const commitHelper = require('./commit-helper.js');
 
 // version (same as package.json due to npx problems)
-const version = "0.2.3";
+const version = "0.2.4";
  
 const parser = new ArgumentParser({
   description: 'gitlab-x: Gitlab Executor API Interface'

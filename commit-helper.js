@@ -1,7 +1,8 @@
-import { existsSync, readFileSync } from 'fs'
-import { basename } from 'path'
-import { apiTest, getApiDriver, filterFields } from './util.js'
-import {diffLines} from "diff";
+const existsSync = require('fs').existsSync;
+const readFileSync = require('fs').readFileSync;
+const basename = require('path').basename;
+const getApiDriver = require('./util.js').getApiDriver;
+const diffLines =  require("diff").diffLines;
 
 
 /**
@@ -17,7 +18,7 @@ import {diffLines} from "diff";
  * @param {boolean} options.force commit even if there is no change in file (--allow-empty)
  * @param {string} options.message custom commit message
  */
-export async function commitSingleFile(localFile, projectIdentifier, remoteFile, options) {
+async function commitSingleFile(localFile, projectIdentifier, remoteFile, options) {
     const VERBOSE = options.verbose || false;
     const FORCE = options.force || false;
     const api = getApiDriver(options);
@@ -116,3 +117,5 @@ function fileIsAscii(filename) {
     }
     return isAscii;
 }
+
+module.exports.commitSingleFile = commitSingleFile;

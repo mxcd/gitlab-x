@@ -1,18 +1,18 @@
-import { GitlabApiDriver } from "./api-driver.js";
+const { GitlabApiDriver } = require("./api-driver.js");
 
-export function trimLeadingSlash(str) {
+function trimLeadingSlash(str) {
     return str.startsWith("/") ? str.substring(1) : str;
 }
 
-export function trimTailingSlash(str) {
+function trimTailingSlash(str) {
     return str.endsWith("/") ? str.substring(0, str.length-1) : str;
 }
 
-export function trimSlashes(str) {
+function trimSlashes(str) {
     return trimLeadingSlash(trimTailingSlash(str));
 }
 
-export function resolveProjectIdentifier(baseUrl, identifier) {
+function resolveProjectIdentifier(baseUrl, identifier) {
     if(!isNaN(parseInt(identifier))) {
         return {id: parseInt(identifier)};
     }
@@ -26,7 +26,7 @@ export function resolveProjectIdentifier(baseUrl, identifier) {
     }
 }
 
-export async function apiTest(args) {
+async function apiTest(args) {
     if(args.verbose) console.log(`Fetching GitLab Version`);
     const api = getApiDriver(args);
     const version = await api.getVersion();
@@ -38,11 +38,11 @@ export async function apiTest(args) {
     return false
 }
 
-export function getApiDriver(args) {
+function getApiDriver(args) {
     return new GitlabApiDriver(args.url, args.access_token, args.verbose);
 }
 
-export function filterFields(args, obj, fields) {
+function filterFields(args, obj, fields) {
     const filterSingleObj = (args, obj, fields) => {
         if(fields.length === 1 && !args.json) {
             return obj[fields[0]]
@@ -77,3 +77,11 @@ export function filterFields(args, obj, fields) {
         return obj;
     }
 }
+
+module.exports.trimLeadingSlash = trimLeadingSlash;
+module.exports.trimTailingSlash= trimTailingSlash;
+module.exports.trimSlashes= trimSlashes;
+module.exports.resolveProjectIdentifier= resolveProjectIdentifier;
+module.exports.apiTest= apiTest;
+module.exports.getApiDriver= getApiDriver;
+module.exports.filterFields= filterFields;
