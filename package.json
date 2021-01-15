@@ -1,6 +1,6 @@
 {
   "name": "gitlab-x",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "GitLab Executor API Interface",
   "repository": "https://github.com/mxcd/gitlab-api",
   "main": "index.js",

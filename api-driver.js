@@ -182,6 +182,33 @@ class GitlabApiDriver {
         }
     }
 
+    async getAllFiles(projectIdentifier, branchName) {
+        if(typeof branchName === 'undefined') {
+            branchName = (await this.getProject(projectIdentifier)).default_branch;
+        }
+        let files = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        while(currentPage <= totalPages) {
+            const url = `${this.getProjectUrl(projectIdentifier)}/repository/tree/?ref=${branchName}&recursive=true&per_page=100&page=${currentPage}`
+            try {
+                if(this.VERBOSE) console.log(`GET > ${url}`);
+                const res = await axios.get(url, this.config);
+                files = files.concat(res.data);
+                const totalPagesHeader = res.headers["x-total-pages"];
+                if(typeof totalPagesHeader !== "undefined" && totalPages !== totalPagesHeader) {
+                    totalPages = totalPagesHeader;
+                    if(this.VERBOSE) console.log(`Set total pages to ${totalPagesHeader}`);
+                }
+                ++currentPage;
+            }
+            catch(e) {
+                throw new GitlabApiError(`Error requesting files from branch '${branchName}' for project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
+            }
+        }
+        return files;
+    }
+
     async getVersion() {
         const url = `${this.API_URL}/version`;
         try {
