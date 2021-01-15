@@ -1,5 +1,8 @@
 const axios = require("axios");
 const util = require("./util.js");
+const fs = require("fs-extra");
+const path = require("path");
+const unzipper = require("unzipper")
 
 const API_PATH = `/api/v4`;
 
@@ -207,6 +210,130 @@ class GitlabApiDriver {
             }
         }
         return files;
+    }
+
+    /* async loadRepository(projectIdentifier, branchName, directory, force) {
+        if(typeof branchName === 'undefined') {
+            branchName = (await this.getProject(projectIdentifier)).default_branch;
+        }
+        let cleanRequired = false;
+        if(fs.existsSync(directory)) {
+            if(fs.lstatSync(directory).isDirectory()) {
+                if(this.VERBOSE) console.log(`Target location '${directory}' exists`);
+                const files = fs.readdirSync(directory);
+                if(files.length !== 0) {
+                    if(this.VERBOSE) console.log(`Target location is not empty`);
+                    cleanRequired = true;
+                    if(!force) {
+                        console.log("Error: target location is not empty. User 'force' to ignore.")
+                        return;
+                    }
+                }
+            }
+            else {
+                console.log("Error: target location is a file")
+                return;
+            }
+        }
+        else {
+            fs.mkdirSync(directory);    
+        }
+
+        let manifest = null;
+        if(fs.existsSync(path.join(directory, ".gitlab-x"))) {
+            manifest = fs.readJSONSync(path.join(directory, ".gitlab-x"));
+        }
+
+        if(cleanRequired) {
+            if(manifest !== null) {
+                const localFiles = util.walk(directory);
+                for(let localFile of localFiles) {
+                    for(const entry of manifest) {
+                        const fileName = path.join(directory, entry.path);
+                        // TODO remove added or modified files
+                    }
+                }
+            }
+            else {
+                fs.emptyDirSync(directory);
+            }
+        }
+
+        let remoteFileManifest = await this.getAllFiles(projectIdentifier, branchName);
+        for(const file of remoteFileManifest) {
+            if(file.type === "tree") {
+                const filePath = path.join(directory, file.path);
+                fs.ensureDirSync(filePath);
+            }
+        }
+
+        for(let file of remoteFileManifest) {
+            if(file.type === "blob") {
+                const data = await this.getRawFile(projectIdentifier, file.path, branchName);
+                file.checksum = crypto.createHash('sha1').update(data).digest("hex");
+                const filePath = path.join(directory, file.path);
+                fs.writeFileSync(filePath, data);
+            }
+        }
+
+        fs.writeJSONSync(path.join(directory, ".gitlab-x"), remoteFileManifest);
+    } */
+
+    async loadRepository(projectIdentifier, branchName, directory, force) {
+        if(typeof branchName === 'undefined') {
+            branchName = (await this.getProject(projectIdentifier)).default_branch;
+        }
+        let cleanRequired = false;
+        if(fs.existsSync(directory)) {
+            if(fs.lstatSync(directory).isDirectory()) {
+                if(this.VERBOSE) console.log(`Target location '${directory}' exists`);
+                const files = fs.readdirSync(directory);
+                if(files.length !== 0) {
+                    if(this.VERBOSE) console.log(`Target location is not empty`);
+                    cleanRequired = true;
+                    if(!force) {
+                        console.log("Error: target location is not empty. User 'force' to ignore.")
+                        return;
+                    }
+                }
+            }
+            else {
+                console.log("Error: target location is a file")
+                return;
+            }
+        }
+        else {
+            fs.mkdirSync(directory);    
+        }
+
+        if(cleanRequired) {
+            fs.emptyDirSync(directory);
+        }
+
+        const url = `${this.getProjectUrl(projectIdentifier)}/repository/archive.zip?sha=${branchName}`
+        try {
+            if(this.VERBOSE) console.log(`GET > ${url}`);
+            const res = await axios.request({
+                responseType: 'arraybuffer',
+                url: url,
+                method: "get",
+                headers: {
+                    "PRIVATE-TOKEN": this.AT
+                }
+            });
+            const zip = await unzipper.Open.buffer(res.data)
+            await zip.extract({path:path.resolve(directory)})
+            const files = fs.readdirSync(directory);
+            if(files.length === 1 && fs.lstatSync(path.join(directory, files[0])).isDirectory()) {
+                fs.readdirSync(path.join(directory, files[0])).forEach(f => fs.moveSync(f, directory, {overwrite: true}))
+            }
+            if(fs.readdirSync(directory).length === 0) {
+                fs.removeSync(path.join(directory, files[0]));
+            }
+        }
+        catch(e) {
+            throw new GitlabApiError(`Error downloading repo archive from branch '${branchName}' for project identified by '${projectIdentifier}'\n\nOriginal Error:\n${e}`)
+        }
     }
 
     async getVersion() {

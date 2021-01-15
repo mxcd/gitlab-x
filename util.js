@@ -1,4 +1,6 @@
 const { GitlabApiDriver } = require("./api-driver.js");
+const fs = require("fs-extra")
+const path = require("path")
 
 function trimLeadingSlash(str) {
     return str.startsWith("/") ? str.substring(1) : str;
@@ -78,10 +80,35 @@ function filterFields(args, obj, fields) {
     }
 }
 
+function walk(dir, done) {
+    let results = [];
+    fs.readdir(dir, function(err, list) {
+        if (err) return done(err);
+        let i = 0;
+        (function next() {
+            let file = list[i++];
+            if (!file) return done(null, results);
+            file = path.resolve(dir, file);
+            fs.stat(file, function(err, stat) {
+                if (stat && stat.isDirectory()) {
+                    walk(file, function(err, res) {
+                        results = results.concat(res);
+                        next();
+                    });
+                } else {
+                    results.push(file);
+                    next();
+                }
+            });
+        })();
+    });
+};
+
 module.exports.trimLeadingSlash = trimLeadingSlash;
-module.exports.trimTailingSlash= trimTailingSlash;
-module.exports.trimSlashes= trimSlashes;
-module.exports.resolveProjectIdentifier= resolveProjectIdentifier;
-module.exports.apiTest= apiTest;
-module.exports.getApiDriver= getApiDriver;
-module.exports.filterFields= filterFields;
+module.exports.trimTailingSlash = trimTailingSlash;
+module.exports.trimSlashes = trimSlashes;
+module.exports.resolveProjectIdentifier = resolveProjectIdentifier;
+module.exports.apiTest = apiTest;
+module.exports.getApiDriver = getApiDriver;
+module.exports.filterFields = filterFields;
+module.exports.walk = walk;
