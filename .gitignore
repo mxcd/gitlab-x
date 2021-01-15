@@ -1,4 +1,6 @@
 sandbox.js
+foo/
+bar/
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,vscode,webstorm
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,vscode,webstorm

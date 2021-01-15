@@ -325,10 +325,13 @@ class GitlabApiDriver {
             await zip.extract({path:path.resolve(directory)})
             const files = fs.readdirSync(directory);
             if(files.length === 1 && fs.lstatSync(path.join(directory, files[0])).isDirectory()) {
-                fs.readdirSync(path.join(directory, files[0])).forEach(f => fs.moveSync(f, directory, {overwrite: true}))
-            }
-            if(fs.readdirSync(directory).length === 0) {
-                fs.removeSync(path.join(directory, files[0]));
+                const zipParentDir = path.join(directory, files[0]);
+                for(const f of fs.readdirSync(zipParentDir)) {
+                    fs.moveSync(path.join(zipParentDir, f), path.join(directory, f));
+                }
+                if(fs.readdirSync(zipParentDir).length === 0) {
+                    fs.removeSync(zipParentDir);
+                }
             }
         }
         catch(e) {
